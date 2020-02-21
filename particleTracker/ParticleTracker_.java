@@ -1678,6 +1678,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		 * <li> m0
 		 * <li> m2 
 		 * <li> score
+		 * <li> m1
+		 * <li> m3
+		 * <li> m4
+		 * <li> m5
+		 * <li> mu11
+		 * <li> mu20
+		 * <li> mu02
+		 * <li> Rmu11
+		 * <li> Rmu20
+		 * <li> Rmu02
 		 * </ul>
 		 * For text files mode - just prints all the information given for the particles
 		 * @return a StringBuffer with this infomation
@@ -1693,7 +1703,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			NumberFormat nf = NumberFormat.getInstance();			
 			nf.setMaximumFractionDigits(6);
 			nf.setMinimumFractionDigits(6);
-			sb.append(this.frame);
+			sb.append(this.frame); //column 1
 			if (text_files_mode) {
 				for (int i = 0; i<all_params.length; i++) {
 					sb.append(sp);
@@ -1702,35 +1712,35 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				sb.append("\n");
 			} else {
 				sb.append(sp);
-				sb.append(nf.format(this.x));
+				sb.append(nf.format(this.x)); //column 2
 				sb.append(sp);
-				sb.append(nf.format(this.y));
+				sb.append(nf.format(this.y)); //column 3
 				sb.append(sp);
-				sb.append(nf.format(this.m0));
+				sb.append(nf.format(this.m0)); //column 4
 				sb.append(sp);
-				sb.append(nf.format(this.m2));
+				sb.append(nf.format(this.m2)); //column 5
 				sb.append(sp);
-				sb.append(nf.format(this.score));
+				sb.append(nf.format(this.score)); //column 6
 				sb.append(sp);
-				sb.append(nf.format(this.m1));
+				sb.append(nf.format(this.m1)); //column 7
 				sb.append(sp);
-				sb.append(nf.format(this.m3));
+				sb.append(nf.format(this.m3)); //column 8
 				sb.append(sp);
-				sb.append(nf.format(this.m4));
+				sb.append(nf.format(this.m4)); //column 9
 				sb.append(sp);
-				sb.append(nf.format(this.m5));
+				sb.append(nf.format(this.m5)); //column 10
 				sb.append(sp);
-				sb.append(nf.format(this.mu11));
+				sb.append(nf.format(this.mu11)); //column 11
 				sb.append(sp);
-				sb.append(nf.format(this.mu20));
+				sb.append(nf.format(this.mu20)); //column 12
 				sb.append(sp);
-				sb.append(nf.format(this.mu02));
+				sb.append(nf.format(this.mu02)); //column 13
 				sb.append(sp);
-				sb.append(nf.format(this.Rmu11));
+				sb.append(nf.format(this.Rmu11)); //column 14
 				sb.append(sp);
-				sb.append(nf.format(this.Rmu20));
+				sb.append(nf.format(this.Rmu20)); //column 15
 				sb.append(sp);
-				sb.append(nf.format(this.Rmu02));
+				sb.append(nf.format(this.Rmu02)); //column 16
 				sb.append("\n");
 			}
 			return sb;
