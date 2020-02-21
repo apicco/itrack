@@ -2748,6 +2748,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			traj_info.append("%%\t 4th column: zero-order intensity moment m0\n");
 			traj_info.append("%%\t 5th column: second-order intensity moment m2\n");
 			traj_info.append("%%\t 6th column: non-particle discrimination score\n");
+			traj_info.append("%%\t 7th column: first-order intensity moment m1\n");
+			traj_info.append("%%\t 8th column: third-order intensity moment m3\n");
+			traj_info.append("%%\t 9th column: forth-order intensity moment m4\n");
+			traj_info.append("%%\t 10th column: fifth-order intensity moment m5\n");
+			traj_info.append("%%\t 11th column: central intensity moment of order 1,1; mu11\n");
+			traj_info.append("%%\t 12th column: central intensity moment of order 2,0; mu20\n");
+			traj_info.append("%%\t 13th column: central intensity moment of order 0,2; mu02\n");
+			traj_info.append("%%\t 14th column: central intensity moment of order 1,1 with larger radius; Rmu11\n");
+			traj_info.append("%%\t 15th column: central intensity moment of order 2,0 with larger radius; Rmu20\n");
+			traj_info.append("%%\t 16th column: central intensity moment of order 0,2 with larger radius; Rmu02\n");
 		}
 		traj_info.append("\n");
 		
