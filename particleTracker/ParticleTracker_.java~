@@ -23,7 +23,7 @@ import java.util.*;
  * <p>This class implements the feature point detection and tracking algorithm as described in:
  * <br>I. F. Sbalzarini and P. Koumoutsakos. 
  * <br>Feature point tracking and trajectory analysis for video imaging in cell biology. 
- * <br>J. Struct. Biol., 151(2): 182–195, 2005.
+ * <br>J. Struct. Biol., 151(2): 182-195, 2005.
  * <p>Any publications that made use of this plugin should cite the above reference.
  * <br>This helps to ensure the financial support of our project at ETH and will 
  * enable us to provide further updates and support.
@@ -419,7 +419,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
             "The plugin implements the feature point detection and tracking algorithm as described in:\n" +
             "I. F. Sbalzarini and P. Koumoutsakos.\n" +
             "Feature point tracking and trajectory analysis for video imaging in cell biology.\n" +
-            "J. Struct. Biol., 151(2): 182–195, 2005.\n" +
+            "J. Struct. Biol., 151(2): 182-195, 2005.\n" +
             "Any publications that made use of this plugin should cite the above reference.\n" +
             "This helps to ensure the financial support of our project at ETH and will enable us to provide further updates and support.\n" +
             "Thanks for your help!\n" +
@@ -499,7 +499,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			int focus_y = Math.max((int)min_x - 8, 0);
 			int focus_height = (int)max_x - focus_y + 8;
 			int focus_width = (int)max_y - focus_x + 8;			
-			// make sure that the -8 or +8 didn’t create an ROI with bounds outside of the window
+			// make sure that the -8 or +8 didn't create an ROI with bounds outside of the window
 			if (focus_x + focus_width > original_imp.getWidth()) {
 				focus_width = original_imp.getWidth() - focus_x;
 			}
@@ -1145,7 +1145,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					}
 
 					//compute the central moments 11,02,20 on a larger radius
-					s = 1.5 //scale radius by s
+					s = 1.5 ;//scale radius by s
 					for(k = - s * radius; k <= s * radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
@@ -1988,7 +1988,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					generateTrajFocusView(chosen_traj-1, magnification_factor);
 				} else {
 					// single-click - mark the selected trajectory by setting the ROI to the 
-					// trajectory’s mouse_selection_area
+					// trajectoryes mouse_selection_area
 					this.imp.setRoi(((Trajectory)all_traj.elementAt(chosen_traj-1)).mouse_selection_area);
 				}
 			} else {
@@ -3074,7 +3074,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		}
 		
 		// Create a new canvas based on the image - the canvas is the view
-		// The trajectories are drawn on this canvas when it’s constructed and not on the image
+		// The trajectories are drawn on this canvas when it's constructed and not on the image
 		// Canvas is an overlay window on top of the ImagePlus
 		tc = new TrajectoryCanvas(duplicated_imp);
 		
