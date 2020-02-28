@@ -93,7 +93,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	int max_coord = 0;			// max value of the loaded particle coordinates
 
 	/* radius scale for eccentricity */
-	float s = 1.5 ; 
+	double s = 1.5 ; 
 	
 	/** 
 	 * This method sets up the plugin filter for use.
