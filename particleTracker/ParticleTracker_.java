@@ -92,6 +92,8 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	boolean momentum_from_text;	
 	int max_coord = 0;			// max value of the loaded particle coordinates
 
+	/* radius scale for eccentricity */
+	private float s = 1.5 ; 
 	
 	/** 
 	 * This method sets up the plugin filter for use.
@@ -1145,7 +1147,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					}
 
 					//compute the central moments 11,02,20 on a larger radius
-					s = 1.5 ;//scale radius by s
 					for(k = - s * radius; k <= s * radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
