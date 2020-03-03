@@ -1145,7 +1145,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					}
 
 					//compute the central moments 11,02,20 on a larger radius
-					s = 1.5 ;//scale radius by s
+					int s = 2 ;//scale radius by s
 					for(k = - s * radius; k <= s * radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;

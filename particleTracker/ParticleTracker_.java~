@@ -1145,7 +1145,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					}
 
 					//compute the central moments 11,02,20 on a larger radius
-					s = 1.5 ;//scale radius by s
+					int s = 2 ;//scale radius by s
 					for(k = - s * radius; k <= s * radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
@@ -3327,7 +3327,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	/**
 	 * Writes the given <code>info</code> to given file information.
 	 * <code>info</code> will be written to the beginning of the file, overwriting older information
-	 * If the file doesn’t exists it will be created.
+	 * If the file doesn't exists it will be created.
 	 * Any problem creating, writing to or closing the file will generate an ImageJ error   
 	 * @param directory location of the file to write to 
 	 * @param file_name file name to write to
