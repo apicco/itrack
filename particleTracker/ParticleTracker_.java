@@ -1075,7 +1075,9 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			float epsx, epsy, c;
 			
 			int mask_width = 2 * radius +1;
-			
+			int s = 2; //scale factor to compute eccentricity including pixels in a s * radius region	
+			int s_mask_width = 2 * s * radius +1 ;
+					
 			/* Set every value that ist smaller than 0 to 0 */		
 			for (int i = 0; i < ip.getHeight(); i++) {
 				for (int j = 0; j < ip.getWidth(); j++) {
@@ -1093,6 +1095,20 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				while (epsx > 0.5 || epsx < -0.5 || epsy > 0.5 || epsy < -0.5) {
 					this.particles[m].m0 = 0.0F;
 					this.particles[m].m2 = 0.0F;
+
+					this.particles[m].m1 = 0.0F;
+					this.particles[m].m3 = 0.0F;
+					this.particles[m].m4 = 0.0F;
+					this.particles[m].m5 = 0.0F;
+					//central moments of order 11,20,02
+					this.particles[m].mu11 = 0.0F;
+					this.particles[m].mu20 = 0.0F;
+					this.particles[m].mu02 = 0.0F;
+					//central moments of order 11,20,02 in a larger radius
+					this.particles[m].Rmu11 = 0.0F;
+					this.particles[m].Rmu20 = 0.0F;
+					this.particles[m].Rmu02 = 0.0F;
+
 					epsx = 0.0F;
 					epsy = 0.0F;
 									
@@ -1111,8 +1127,37 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 							epsx += (float)k * c;
 							epsy += (float)l * c;
 							this.particles[m].m2 += (float)(k * k + l * l) * c;
+							//central moment of order 1,3,4,5
+							this.particles[m].m1 += (float)(k + l) * c;
+							this.particles[m].m3 += (float)(k * k * k + l * l * l) * c;
+							this.particles[m].m4 += (float)(k * k * k *k + l * l * l * l) * c;
+							this.particles[m].m5 += (float)(k * k * k * k *k + l * l * l * l * l) * c;
+							//central momemts of order 11,02,20
+							this.particles[m].mu11 += (float)(k * l * c);
+							this.particles[m].mu20 += (float)(k * k * c);
+							this.particles[m].mu02 += (float)(l * l * c);
 						}
 					}
+					//compute the central moments 11,02,20 on a larger radius
+					for(k = -s * radius; k <= s * radius; k++) {
+						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
+							continue;
+						x = (int)this.particles[m].x + k;
+
+						for(l = -s * radius; l <= s * radius; l++) {
+							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth())
+								continue;
+							y = (int)this.particles[m].y + l;
+
+							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s * radius, l + s * radius, s_mask_width)];
+							//orientation and eccentricity of the spot
+							//central momemts of order 11,02,20
+							this.particles[m].Rmu11 += (float)(k * l * c);
+							this.particles[m].Rmu20 += (float)(k * k * c);
+							this.particles[m].Rmu02 += (float)(l * l * c);
+						}
+					}
+
 
 					epsx /= this.particles[m].m0;
 					epsy /= this.particles[m].m0;
@@ -1556,6 +1601,9 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		/* only relevant to particles detected in images */
 		float m0, m2; 					// zero and second order intensity moment
 		float score; 					// non-particle discrimination score
+		float m1, m3, m4, m5;				// firt, third, forth and fifth order intensity moment
+		float mu11, mu20, mu02;					// central moments to determine orientation and eccentricity. Burger, Bruge; Principles of Digital image processing
+		float Rmu11, Rmu20, Rmu02;					// central moments to determine orientation and eccentricity, computed on a region s * radius large. Moments defined as in  Burger, Bruge; Principles of Digital image processing
 		
 		/* only relevant to particles given as input */
 		String[] all_params; 			// all params that relate to this particle,
@@ -1596,6 +1644,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			this.score = 0.0F;
 			this.m0 = 0.0F;
 			this.m2 = 0.0F;
+			this.m1 = 0.0F;
+			this.m3 = 0.0F;
+			this.m4 = 0.0F;
+			this.m5 = 0.0F;
+			this.mu11 = 0.0F;
+			this.mu20 = 0.0F;
+			this.mu02 = 0.0F;
+			this.Rmu11 = 0.0F;
+			this.Rmu20 = 0.0F;
+			this.Rmu02 = 0.0F;
 		}
 		
 		/* (non-Javadoc)
@@ -1616,6 +1674,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		 * <li> m0
 		 * <li> m2 
 		 * <li> score
+		 * <li> m1
+		 * <li> m3
+		 * <li> m4
+		 * <li> m5
+		 * <li> mu11
+		 * <li> mu20
+		 * <li> mu02
+		 * <li> Rmu11
+		 * <li> Rmu20
+		 * <li> Rmu02
 		 * </ul>
 		 * For text files mode - just prints all the information given for the particles
 		 * @return a StringBuffer with this infomation
@@ -1640,15 +1708,35 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				sb.append("\n");
 			} else {
 				sb.append(sp);
-				sb.append(nf.format(this.x));
+				sb.append(nf.format(this.x)); //column 2
 				sb.append(sp);
-				sb.append(nf.format(this.y));
+				sb.append(nf.format(this.y)); //column 3
 				sb.append(sp);
-				sb.append(nf.format(this.m0));
+				sb.append(nf.format(this.m0)); //column 4
 				sb.append(sp);
-				sb.append(nf.format(this.m2));
+				sb.append(nf.format(this.m2)); //column 5
 				sb.append(sp);
-				sb.append(nf.format(this.score));
+				sb.append(nf.format(this.score)); //column 6
+				sb.append(sp);
+				sb.append(nf.format(this.m1)); //column 7
+				sb.append(sp);
+				sb.append(nf.format(this.m3)); //column 8
+				sb.append(sp);
+				sb.append(nf.format(this.m4)); //column 9
+				sb.append(sp);
+				sb.append(nf.format(this.m5)); //column 10
+				sb.append(sp);
+				sb.append(nf.format(this.mu11)); //column 11
+				sb.append(sp);
+				sb.append(nf.format(this.mu20)); //column 12
+				sb.append(sp);
+				sb.append(nf.format(this.mu02)); //column 13
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu11)); //column 14
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu20)); //column 15
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu02)); //column 16
 				sb.append("\n");
 			}
 			return sb;
@@ -2656,6 +2744,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			traj_info.append("%%\t 4th column: zero-order intensity moment m0\n");
 			traj_info.append("%%\t 5th column: second-order intensity moment m2\n");
 			traj_info.append("%%\t 6th column: non-particle discrimination score\n");
+			traj_info.append("%%\t 7th column: first-order intensity moment m1\n");
+			traj_info.append("%%\t 8th column: third-order intensity moment m3\n");
+			traj_info.append("%%\t 9th column: forth-order intensity moment m4\n");
+			traj_info.append("%%\t 10th column: fifth-order intensity moment m5\n");
+			traj_info.append("%%\t 11th column: central intensity moment of order 1,1; mu11\n");
+			traj_info.append("%%\t 12th column: central intensity moment of order 2,0; mu20\n");
+			traj_info.append("%%\t 13th column: central intensity moment of order 0,2; mu02\n");
+			traj_info.append("%%\t 14th column: central intensity moment of order 1,1 with larger radius; Rmu11\n");
+			traj_info.append("%%\t 15th column: central intensity moment of order 2,0 with larger radius; Rmu20\n");
+			traj_info.append("%%\t 16th column: central intensity moment of order 0,2 with larger radius; Rmu02\n");
 		}
 		traj_info.append("\n");
 		
