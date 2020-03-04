@@ -1076,7 +1076,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			
 			int mask_width = 2 * radius +1;
 			int s = 2; //scale factor to compute eccentricity including pixels in a s * radius region	
-			int s_mask_width = 2 * s * radius +1 ;
+			int s_mask_width = 2 * s * radius +1;
 					
 			/* Set every value that ist smaller than 0 to 0 */		
 			for (int i = 0; i < ip.getHeight(); i++) {
@@ -1139,17 +1139,19 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 						}
 					}
 					//compute the central moments 11,02,20 on a larger radius
-					for(k = -s * radius; k <= s * radius; k++) {
+					int s_radius = s * radius;
+					for(k = -s_radius; k <= s_radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
 						x = (int)this.particles[m].x + k;
 
-						for(l = -s * radius; l <= s * radius; l++) {
+						for(l = -s_radius; l <= s_radius; l++) {
 							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth())
 								continue;
 							y = (int)this.particles[m].y + l;
 
-							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s * radius, l + s * radius, s_mask_width)];
+//							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s * radius, l + s * radius, s_mask_width)];
+							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s_radius, l + s_radius, s_mask_width)];
 							//orientation and eccentricity of the spot
 							//central momemts of order 11,02,20
 							this.particles[m].Rmu11 += (float)(k * l * c);
@@ -1717,26 +1719,26 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				sb.append(nf.format(this.m2)); //column 5
 				sb.append(sp);
 				sb.append(nf.format(this.score)); //column 6
-				sb.append(sp);
-				sb.append(nf.format(this.m1)); //column 7
-				sb.append(sp);
-				sb.append(nf.format(this.m3)); //column 8
-				sb.append(sp);
-				sb.append(nf.format(this.m4)); //column 9
-				sb.append(sp);
-				sb.append(nf.format(this.m5)); //column 10
-				sb.append(sp);
-				sb.append(nf.format(this.mu11)); //column 11
-				sb.append(sp);
-				sb.append(nf.format(this.mu20)); //column 12
-				sb.append(sp);
-				sb.append(nf.format(this.mu02)); //column 13
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu11)); //column 14
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu20)); //column 15
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu02)); //column 16
+//				sb.append(sp);
+//				sb.append(nf.format(this.m1)); //column 7
+//				sb.append(sp);
+//				sb.append(nf.format(this.m3)); //column 8
+//				sb.append(sp);
+//				sb.append(nf.format(this.m4)); //column 9
+//				sb.append(sp);
+//				sb.append(nf.format(this.m5)); //column 10
+//				sb.append(sp);
+//				sb.append(nf.format(this.mu11)); //column 11
+//				sb.append(sp);
+//				sb.append(nf.format(this.mu20)); //column 12
+//				sb.append(sp);
+//				sb.append(nf.format(this.mu02)); //column 13
+//				sb.append(sp);
+//				sb.append(nf.format(this.Rmu11)); //column 14
+//				sb.append(sp);
+//				sb.append(nf.format(this.Rmu20)); //column 15
+//				sb.append(sp);
+//				sb.append(nf.format(this.Rmu02)); //column 16
 				sb.append("\n");
 			}
 			return sb;
