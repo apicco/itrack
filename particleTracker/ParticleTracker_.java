@@ -23,7 +23,7 @@ import java.util.*;
  * <p>This class implements the feature point detection and tracking algorithm as described in:
  * <br>I. F. Sbalzarini and P. Koumoutsakos. 
  * <br>Feature point tracking and trajectory analysis for video imaging in cell biology. 
- * <br>J. Struct. Biol., 151(2): 182-195, 2005.
+ * <br>J. Struct. Biol., 151(2): 182–195, 2005.
  * <p>Any publications that made use of this plugin should cite the above reference.
  * <br>This helps to ensure the financial support of our project at ETH and will 
  * enable us to provide further updates and support.
@@ -172,20 +172,15 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		IJ.showStatus("Generating Trajectories");
 		generateTrajectories();
 		IJ.freeMemory();
-
-		/* save results in current folder */
-		IJ.log("Traj_"+title.substring(0,title.length()-4)+".txt");
-		write2File(IJ.getDirectory("image"),"Traj_"+title.substring(0,title.length()-4)+".txt",getFullReport().toString());
-
-
-//default		/* Display results window */
-//default		this.trajectory_tail = this.frames_number;
-//default		results_window = new ResultsWindow("Results");
-//default		results_window.configuration_panel.append(getConfiguration().toString());
-//default		results_window.configuration_panel.append(getInputFramesInformation().toString());	
-//default		results_window.text_panel.appendLine("Particle Tracker DONE!");
-//default		results_window.text_panel.appendLine("Found " + this.number_of_trajectories + " Trajectories");
-//default		results_window.setVisible(true);
+		
+		/* Display results window */
+		this.trajectory_tail = this.frames_number;
+		results_window = new ResultsWindow("Results");
+		results_window.configuration_panel.append(getConfiguration().toString());
+		results_window.configuration_panel.append(getInputFramesInformation().toString());	
+		results_window.text_panel.appendLine("Particle Tracker DONE!");
+		results_window.text_panel.appendLine("Found " + this.number_of_trajectories + " Trajectories");
+		results_window.setVisible(true);
 		
 		IJ.freeMemory();
 	}
@@ -419,7 +414,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
             "The plugin implements the feature point detection and tracking algorithm as described in:\n" +
             "I. F. Sbalzarini and P. Koumoutsakos.\n" +
             "Feature point tracking and trajectory analysis for video imaging in cell biology.\n" +
-            "J. Struct. Biol., 151(2): 182-195, 2005.\n" +
+            "J. Struct. Biol., 151(2): 182–195, 2005.\n" +
             "Any publications that made use of this plugin should cite the above reference.\n" +
             "This helps to ensure the financial support of our project at ETH and will enable us to provide further updates and support.\n" +
             "Thanks for your help!\n" +
@@ -499,7 +494,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			int focus_y = Math.max((int)min_x - 8, 0);
 			int focus_height = (int)max_x - focus_y + 8;
 			int focus_width = (int)max_y - focus_x + 8;			
-			// make sure that the -8 or +8 didn't create an ROI with bounds outside of the window
+			// make sure that the -8 or +8 didn’t create an ROI with bounds outside of the window
 			if (focus_x + focus_width > original_imp.getWidth()) {
 				focus_width = original_imp.getWidth() - focus_x;
 			}
@@ -1098,20 +1093,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				while (epsx > 0.5 || epsx < -0.5 || epsy > 0.5 || epsy < -0.5) {
 					this.particles[m].m0 = 0.0F;
 					this.particles[m].m2 = 0.0F;
-
-					this.particles[m].m1 = 0.0F;
-					this.particles[m].m3 = 0.0F;
-					this.particles[m].m4 = 0.0F;
-					this.particles[m].m5 = 0.0F;
-					//central moments of order 11,20,02
-					this.particles[m].mu11 = 0.0F;
-					this.particles[m].mu20 = 0.0F;
-					this.particles[m].mu02 = 0.0F;
-					//central moments of order 11,20,02 in a larger radius
-					this.particles[m].Rmu11 = 0.0F;
-					this.particles[m].Rmu20 = 0.0F;
-					this.particles[m].Rmu02 = 0.0F;
-
 					epsx = 0.0F;
 					epsy = 0.0F;
 									
@@ -1125,58 +1106,18 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 								continue;
 							y = (int)this.particles[m].y + l;
 
-
 							c = ip.getPixelValue(y, x) * (float)mask[coord(k + radius, l + radius, mask_width)];
 							this.particles[m].m0 += c;
 							epsx += (float)k * c;
 							epsy += (float)l * c;
 							this.particles[m].m2 += (float)(k * k + l * l) * c;
-							//central moment of order 1,3,4,5
-							this.particles[m].m1 += (float)(k + l) * c;
-							this.particles[m].m3 += (float)(k * k * k + l * l * l) * c;
-							this.particles[m].m4 += (float)(k * k * k *k + l * l * l * l) * c;
-							this.particles[m].m5 += (float)(k * k * k * k *k + l * l * l * l * l) * c;
-							//orientation and eccentricity of the spot
-							//central momemts of order 11,02,20
-							this.particles[m].mu11 += (float)(k * l * c);
-							this.particles[m].mu20 += (float)(k * k * c);
-							this.particles[m].mu02 += (float)(l * l * c);
-						}
-					}
-
-					//compute the central moments 11,02,20 on a larger radius
-					int s = 2 ;//scale radius by s
-					for(k = - s * radius; k <= s * radius; k++) {
-						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
-							continue;
-						x = (int)this.particles[m].x + k;
-
-						for(l = -s * radius; l <= s * radius; l++) {
-							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth())
-								continue;
-							y = (int)this.particles[m].y + l;
-
-
-							c = ip.getPixelValue(y, x) * (float)mask[coord(k + radius, l + radius, mask_width)];
-							epsx += (float)k * c;
-							epsy += (float)l * c;
-							//orientation and eccentricity of the spot
-							//central momemts of order 11,02,20
-							this.particles[m].Rmu11 += (float)(k * l * c);
-							this.particles[m].Rmu20 += (float)(k * k * c);
-							this.particles[m].Rmu02 += (float)(l * l * c);
 						}
 					}
 
 					epsx /= this.particles[m].m0;
 					epsy /= this.particles[m].m0;
-					//this.particles[m].m2 /= this.particles[m].m0;
-					
-					//this.particles[m].m1 /= this.particles[m].m0;
-					//this.particles[m].m3 /= this.particles[m].m0;
-					//this.particles[m].m4 /= this.particles[m].m0;
-					//this.particles[m].m5 /= this.particles[m].m0;
-				
+					this.particles[m].m2 /= this.particles[m].m0;
+
 					// This is a little hack to avoid numerical inaccuracy
 					tx = (int)(10.0 * epsx);
 					ty = (int)(10.0 * epsy);
@@ -1615,9 +1556,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		/* only relevant to particles detected in images */
 		float m0, m2; 					// zero and second order intensity moment
 		float score; 					// non-particle discrimination score
-		float m1, m3, m4, m5;				// firt, third, forth and fifth order intensity moment
-		float mu11, mu20, mu02;					// central moments to determine orientation and eccentricity. Burger, Bruge; Principles of Digital image processing
-		float Rmu11, Rmu20, Rmu02;					// central moments to determine orientation and eccentricity, computed on a region s * radius large. Moments defined as in  Burger, Bruge; Principles of Digital image processing
 		
 		/* only relevant to particles given as input */
 		String[] all_params; 			// all params that relate to this particle,
@@ -1678,16 +1616,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		 * <li> m0
 		 * <li> m2 
 		 * <li> score
-		 * <li> m1
-		 * <li> m3
-		 * <li> m4
-		 * <li> m5
-		 * <li> mu11
-		 * <li> mu20
-		 * <li> mu02
-		 * <li> Rmu11
-		 * <li> Rmu20
-		 * <li> Rmu02
 		 * </ul>
 		 * For text files mode - just prints all the information given for the particles
 		 * @return a StringBuffer with this infomation
@@ -1703,7 +1631,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			NumberFormat nf = NumberFormat.getInstance();			
 			nf.setMaximumFractionDigits(6);
 			nf.setMinimumFractionDigits(6);
-			sb.append(this.frame); //column 1
+			sb.append(this.frame);
 			if (text_files_mode) {
 				for (int i = 0; i<all_params.length; i++) {
 					sb.append(sp);
@@ -1712,35 +1640,15 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				sb.append("\n");
 			} else {
 				sb.append(sp);
-				sb.append(nf.format(this.x)); //column 2
+				sb.append(nf.format(this.x));
 				sb.append(sp);
-				sb.append(nf.format(this.y)); //column 3
+				sb.append(nf.format(this.y));
 				sb.append(sp);
-				sb.append(nf.format(this.m0)); //column 4
+				sb.append(nf.format(this.m0));
 				sb.append(sp);
-				sb.append(nf.format(this.m2)); //column 5
+				sb.append(nf.format(this.m2));
 				sb.append(sp);
-				sb.append(nf.format(this.score)); //column 6
-				sb.append(sp);
-				sb.append(nf.format(this.m1)); //column 7
-				sb.append(sp);
-				sb.append(nf.format(this.m3)); //column 8
-				sb.append(sp);
-				sb.append(nf.format(this.m4)); //column 9
-				sb.append(sp);
-				sb.append(nf.format(this.m5)); //column 10
-				sb.append(sp);
-				sb.append(nf.format(this.mu11)); //column 11
-				sb.append(sp);
-				sb.append(nf.format(this.mu20)); //column 12
-				sb.append(sp);
-				sb.append(nf.format(this.mu02)); //column 13
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu11)); //column 14
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu20)); //column 15
-				sb.append(sp);
-				sb.append(nf.format(this.Rmu02)); //column 16
+				sb.append(nf.format(this.score));
 				sb.append("\n");
 			}
 			return sb;
@@ -1988,7 +1896,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 					generateTrajFocusView(chosen_traj-1, magnification_factor);
 				} else {
 					// single-click - mark the selected trajectory by setting the ROI to the 
-					// trajectoryes mouse_selection_area
+					// trajectory’s mouse_selection_area
 					this.imp.setRoi(((Trajectory)all_traj.elementAt(chosen_traj-1)).mouse_selection_area);
 				}
 			} else {
@@ -2264,6 +2172,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			
 			Object source = ae.getSource();						
 			Roi user_roi = null;
+			
 			/* view all trajectories */
 			if (source == view_static) {
 				// a new view is requested so reset the filter and generate a NEW view
@@ -2296,7 +2205,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				write2File(sd.getDirectory(), sd.getFileName(), getFullReport().toString());
 				return;
 			}
-			//write2File(IJ.getDirectory("image"),"Traj_" + title, ".txt", getFullReport().toString());
 			/* display full report on the text_panel*/
 			if (source == display_report) {
 				text_panel.selectAll();
@@ -2748,16 +2656,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			traj_info.append("%%\t 4th column: zero-order intensity moment m0\n");
 			traj_info.append("%%\t 5th column: second-order intensity moment m2\n");
 			traj_info.append("%%\t 6th column: non-particle discrimination score\n");
-			traj_info.append("%%\t 7th column: first-order intensity moment m1\n");
-			traj_info.append("%%\t 8th column: third-order intensity moment m3\n");
-			traj_info.append("%%\t 9th column: forth-order intensity moment m4\n");
-			traj_info.append("%%\t 10th column: fifth-order intensity moment m5\n");
-			traj_info.append("%%\t 11th column: central intensity moment of order 1,1; mu11\n");
-			traj_info.append("%%\t 12th column: central intensity moment of order 2,0; mu20\n");
-			traj_info.append("%%\t 13th column: central intensity moment of order 0,2; mu02\n");
-			traj_info.append("%%\t 14th column: central intensity moment of order 1,1 with larger radius; Rmu11\n");
-			traj_info.append("%%\t 15th column: central intensity moment of order 2,0 with larger radius; Rmu20\n");
-			traj_info.append("%%\t 16th column: central intensity moment of order 0,2 with larger radius; Rmu02\n");
 		}
 		traj_info.append("\n");
 		
@@ -3074,7 +2972,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 		}
 		
 		// Create a new canvas based on the image - the canvas is the view
-		// The trajectories are drawn on this canvas when it's constructed and not on the image
+		// The trajectories are drawn on this canvas when it’s constructed and not on the image
 		// Canvas is an overlay window on top of the ImagePlus
 		tc = new TrajectoryCanvas(duplicated_imp);
 		
@@ -3327,7 +3225,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	/**
 	 * Writes the given <code>info</code> to given file information.
 	 * <code>info</code> will be written to the beginning of the file, overwriting older information
-	 * If the file doesn't exists it will be created.
+	 * If the file doesn’t exists it will be created.
 	 * Any problem creating, writing to or closing the file will generate an ImageJ error   
 	 * @param directory location of the file to write to 
 	 * @param file_name file name to write to
