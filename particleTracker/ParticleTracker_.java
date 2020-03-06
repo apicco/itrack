@@ -1721,26 +1721,26 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 				sb.append(nf.format(this.m2)); //column 5
 				sb.append(sp);
 				sb.append(nf.format(this.score)); //column 6
-//				sb.append(sp);
-//				sb.append(nf.format(this.m1)); //column 7
-//				sb.append(sp);
-//				sb.append(nf.format(this.m3)); //column 8
-//				sb.append(sp);
-//				sb.append(nf.format(this.m4)); //column 9
-//				sb.append(sp);
-//				sb.append(nf.format(this.m5)); //column 10
-//				sb.append(sp);
-//				sb.append(nf.format(this.mu11)); //column 11
-//				sb.append(sp);
-//				sb.append(nf.format(this.mu20)); //column 12
-//				sb.append(sp);
-//				sb.append(nf.format(this.mu02)); //column 13
-//				sb.append(sp);
-//				sb.append(nf.format(this.Rmu11)); //column 14
-//				sb.append(sp);
-//				sb.append(nf.format(this.Rmu20)); //column 15
-//				sb.append(sp);
-//				sb.append(nf.format(this.Rmu02)); //column 16
+				sb.append(sp);
+				sb.append(nf.format(this.m1)); //column 7
+				sb.append(sp);
+				sb.append(nf.format(this.m3)); //column 8
+				sb.append(sp);
+				sb.append(nf.format(this.m4)); //column 9
+				sb.append(sp);
+				sb.append(nf.format(this.m5)); //column 10
+				sb.append(sp);
+				sb.append(nf.format(this.mu11)); //column 11
+				sb.append(sp);
+				sb.append(nf.format(this.mu20)); //column 12
+				sb.append(sp);
+				sb.append(nf.format(this.mu02)); //column 13
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu11)); //column 14
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu20)); //column 15
+				sb.append(sp);
+				sb.append(nf.format(this.Rmu02)); //column 16
 				sb.append("\n");
 			}
 			return sb;
