@@ -59,13 +59,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	public double cutoff = 3.0; 		// default
 	public float percentile = 0.001F; 	// default (user input/100)
 	public int radius = 3; 				// default
+	public int s = 2;	 				// default
 	public int linkrange = 2; 			// default
 	public double displacement = 10.0; 	// default
 	public GenericDialog gd;
 	
 	/*	image Restoration vars	*/
 	public int[] mask;
+	public int[] s_mask;
 	public int lambda_n = 1;
+	public int s_radius = s * radius;		
 	public float[] kernel;
 
 	/* flags */	
@@ -325,7 +328,9 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 
         gd.showDialog();
         
-        // retrieve params from user
+		//int s = 2; //scale factor to compute eccentricity including pixels in a s * radius region	
+       
+	   	// retrieve params from user
         if (!text_files_mode) {
         	int rad = (int)gd.getNextNumber();
 //        	this.radius = (int)gd.getNextNumber();
@@ -343,6 +348,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
         		}        		
         	}
         	this.radius = rad;
+        	this.s_radius = s * rad;
         	this.cutoff = cut;
         	this.percentile = per;
         	
@@ -352,6 +358,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
             makeKernel(this.radius);
             // create Mask for Dilation with the user defined radius
 			generateMask(this.radius);
+			generateS_Mask(this.s_radius);
 			
         }
         if (only_detect) {
@@ -802,6 +809,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 	 * for them to be linked.
 	 * <br>Some of its methods use global variables defined and calculated in <code>ParticleTracker_</code>
 	 * @see ParticleTracker_#mask
+	 * @see ParticleTracker_#s_mask
 	 * @see ParticleTracker_#kernel
 	 * @see ParticleTracker_#cutoff
 	 * @see ParticleTracker_#percentile
@@ -1075,8 +1083,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 			float epsx, epsy, c;
 			
 			int mask_width = 2 * radius +1;
-			int s = 2; //scale factor to compute eccentricity including pixels in a s * radius region	
-			int s_mask_width = 2 * s * radius +1;
+			int s_mask_width = 2 * s_radius +1;
 					
 			/* Set every value that ist smaller than 0 to 0 */		
 			for (int i = 0; i < ip.getHeight(); i++) {
@@ -1116,13 +1123,12 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
 						x = (int)this.particles[m].x + k;
-
 						for(l = -radius; l <= radius; l++) {
-							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth())
+							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth()) 
 								continue;
 							y = (int)this.particles[m].y + l;
-
 							c = ip.getPixelValue(y, x) * (float)mask[coord(k + radius, l + radius, mask_width)];
+							
 							this.particles[m].m0 += c;
 							epsx += (float)k * c;
 							epsy += (float)l * c;
@@ -1130,8 +1136,8 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 							//central moment of order 1,3,4,5
 							this.particles[m].m1 += (float)(k + l) * c;
 							this.particles[m].m3 += (float)(k * k * k + l * l * l) * c;
-							this.particles[m].m4 += (float)(k * k * k *k + l * l * l * l) * c;
-							this.particles[m].m5 += (float)(k * k * k * k *k + l * l * l * l * l) * c;
+							this.particles[m].m4 += (float)(k * k * k * k + l * l * l * l) * c;
+							this.particles[m].m5 += (float)(k * k * k * k * k + l * l * l * l * l) * c;
 							//central momemts of order 11,02,20
 							this.particles[m].mu11 += (float)(k * l * c);
 							this.particles[m].mu20 += (float)(k * k * c);
@@ -1139,19 +1145,16 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 						}
 					}
 					//compute the central moments 11,02,20 on a larger radius
-					int s_radius = s * radius;
 					for(k = -s_radius; k <= s_radius; k++) {
 						if(((int)this.particles[m].x + k) < 0 || ((int)this.particles[m].x + k) >= ip.getHeight())
 							continue;
 						x = (int)this.particles[m].x + k;
-
 						for(l = -s_radius; l <= s_radius; l++) {
-							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth())
+							if(((int)this.particles[m].y + l) < 0 || ((int)this.particles[m].y + l) >= ip.getWidth()) 
 								continue;
 							y = (int)this.particles[m].y + l;
+							c = ip.getPixelValue(y, x) * (float)s_mask[coord(k + s_radius, l + s_radius, s_mask_width)];
 
-//							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s * radius, l + s * radius, s_mask_width)];
-							c = ip.getPixelValue(y, x) * (float)mask[coord(k + s_radius, l + s_radius, s_mask_width)];
 							//orientation and eccentricity of the spot
 							//central momemts of order 11,02,20
 							this.particles[m].Rmu11 += (float)(k * l * c);
@@ -1159,7 +1162,6 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
 							this.particles[m].Rmu02 += (float)(l * l * c);
 						}
 					}
-
 
 					epsx /= this.particles[m].m0;
 					epsy /= this.particles[m].m0;
@@ -3265,7 +3267,29 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
     		}
     	}
     }
-    
+ 
+    /**
+     * Generates the dilation mask to compute the eccentricity in a region that surronds the spot
+     * <code>s_mask</code> is a var of class ParticleTracker_ and its modified internally here
+     * @param s_mask_radius the radius of the mask (user defined)
+     */
+    public void generateS_Mask(int s_mask_radius) {    	
+    	
+    	int width = (2 * s_mask_radius) + 1;
+    	this.s_mask = new int[width*width];
+
+    	for(int i = -s_mask_radius; i <= s_mask_radius; i++) {
+    		for(int j = -s_mask_radius; j <= s_mask_radius; j++) {
+    			int index = coord(i + s_mask_radius, j + s_mask_radius, width);
+    			if((i * i) + (j * j) <= s_mask_radius * s_mask_radius)
+    				this.s_mask[index] = 1;
+    			else
+    				this.s_mask[index] = 0;
+    			
+    		}
+    	}
+    }
+   
     /**
      * Generates the Convolution Kernel as described in the Image Restoration 
      * part of the original algorithm 
