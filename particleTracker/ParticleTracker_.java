@@ -348,7 +348,7 @@ public class ParticleTracker_ implements PlugInFilter, Measurements, ActionListe
         		}        		
         	}
         	this.radius = rad;
-        	this.s_radius = s * rad;
+        	this.s_radius = s*rad;
         	this.cutoff = cut;
         	this.percentile = per;
         	
